@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         APPS.forEach { (filename, packageName) ->
 
-            Installer.install1(
+            Installer.method(InstallMethod.PROVIDER).install(
                 this,
                 filename = filename,
                 packageName = packageName
