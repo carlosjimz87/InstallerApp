@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import timber.log.Timber
 import java.io.File
 
+
 enum class InstallMethod {
     PROVIDER,
     INTENT_NEW_TASK
@@ -26,44 +27,47 @@ object Installer {
 
     fun install(context: Context, filename: String, packageName: String) {
         try {
-            Timber.d("Attempt to install via $method")
-            when (method) {
-                InstallMethod.PROVIDER -> installViaFileProvider(context, filename, packageName)
-                InstallMethod.INTENT_NEW_TASK -> installViaNewTaskIntent(
-                    context,
-                    filename,
-                    packageName
-                )
+            val flag = when (method) {
+                InstallMethod.PROVIDER -> Intent.FLAG_GRANT_READ_URI_PERMISSION
+                InstallMethod.INTENT_NEW_TASK -> Intent.FLAG_ACTIVITY_NEW_TASK
             }
+
+
+            AssetsManager.list(context).forEach { _fileName ->
+
+                Timber.d("Attempt to install via $method of file $_fileName")
+                if (filename == _fileName) {
+                    val file = File("${Environment.getExternalStorageDirectory()}/apks/$_fileName")
+                    Timber.d("File ${file.absolutePath} was created")
+                    val uri =
+                        FileProvider.getUriForFile(
+                            context,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            file
+                        )
+                    val intent = createIntent(uri, packageName, flag)
+                    context.startActivity(intent)
+                    Timber.d("Installation attempt of $packageName done")
+                }
+            }
+
         } catch (e: Exception) {
-            val message = "Something went wrong with $packageName (${e.message})"
+            val message = "Failed installation of $packageName (${e.message})"
             Timber.e(message)
         }
     }
 
-    private fun installViaFileProvider(context: Context, filename: String, packageName: String) {
-
-        val intent = Intent(Intent.ACTION_VIEW)
-        val file = File("${Environment.getExternalStorageDirectory()}/apks/$filename")
-        val data =
-            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-        intent.setDataAndType(data, "application/$packageName")
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        context.startActivity(intent)
-        Timber.d("Installation of $packageName finished")
-
-    }
-
-    private fun installViaNewTaskIntent(context: Context, filename: String, packageName: String) {
-
-        val promptInstall = Intent(Intent.ACTION_VIEW)
-        promptInstall.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        promptInstall.setDataAndType(
-            Uri.parse("file:///android_asset/$filename"),
-            "application/$packageName"
-        )
-        context.startActivity(promptInstall)
-        Timber.d("Installation of $packageName finished")
+    private fun createIntent(
+        uri: Uri?,
+        packageName: String,
+        flag: Int
+    ): Intent {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/$packageName")
+            addFlags(flag)
+        }
+        Timber.d("Creating intent with uri:$uri package:$packageName and flag:$flag is $intent")
+        return intent
     }
 
     fun appInstalledOrNot(context: Context, packageName: String): Boolean {
