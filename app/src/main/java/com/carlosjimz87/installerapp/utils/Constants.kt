@@ -1,18 +1,10 @@
 package com.carlosjimz87.installerapp.utils
 
-import android.Manifest
+import com.carlosjimz87.installerapp.BuildConfig
 
 object Constants {
 
     const val APP_EXTENSION = ".apk"
     const val PERMISSION_REQUEST_STORAGE = 0
-    val APPS = mapOf(
-        "Files/other_app.apk" to "com.onthespot.androidplayer",
-        "Files/signed_app.apk" to "com.onthespot.system"
-    )
-    const val REQUEST_EXTERNAL_STORAGE = 1
-    val PERMISSIONS_STORAGE = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
+    const val INIT_PATH: String = "${BuildConfig.APPLICATION_ID}.files"
 }

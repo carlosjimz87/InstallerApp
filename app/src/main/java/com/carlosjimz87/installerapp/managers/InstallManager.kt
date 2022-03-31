@@ -7,10 +7,13 @@ import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
 import com.carlosjimz87.installerapp.BuildConfig
-import com.carlosjimz87.installerapp.models.InstallMethod
 import timber.log.Timber
 import java.io.File
 
+enum class InstallMethod {
+    PROVIDER,
+    INTENT_NEW_TASK
+}
 
 class InstallationManager(
     private val context: Context,
