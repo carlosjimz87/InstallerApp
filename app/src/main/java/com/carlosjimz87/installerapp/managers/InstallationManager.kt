@@ -1,4 +1,4 @@
-package com.carlosjimz87.installerapp
+package com.carlosjimz87.installerapp.managers
 
 import android.content.Context
 import android.content.Intent
@@ -6,25 +6,17 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
+import com.carlosjimz87.installerapp.BuildConfig
+import com.carlosjimz87.installerapp.models.InstallMethod
 import timber.log.Timber
 import java.io.File
 
 
-enum class InstallMethod {
-    PROVIDER,
-    INTENT_NEW_TASK
-
-}
-
-object Installer {
-
-    private var method: InstallMethod = InstallMethod.PROVIDER
-
-    fun method(method: InstallMethod): Installer {
-        this.method = method
-        return this
-    }
-
+class InstallationManager(
+    private val context: Context,
+    private val method: InstallMethod,
+    private val assetsManager: AssetsManager = AssetsManager(context)
+) {
     fun install(context: Context, filename: String, packageName: String) {
         try {
             val flag = when (method) {
@@ -33,7 +25,7 @@ object Installer {
             }
 
 
-            AssetsManager.list(context).forEach { _fileName ->
+            assetsManager.list().forEach { _fileName ->
 
                 Timber.d("Attempt to install via $method of file $_fileName")
                 if (filename == _fileName) {

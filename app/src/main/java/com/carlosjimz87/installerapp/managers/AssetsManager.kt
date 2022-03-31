@@ -1,7 +1,8 @@
-package com.carlosjimz87.installerapp
+package com.carlosjimz87.installerapp.managers
 
 import android.content.Context
 import android.os.Environment
+import com.carlosjimz87.installerapp.utils.Constants.APP_EXTENSION
 import timber.log.Timber
 import java.io.FileOutputStream
 import java.io.IOException
@@ -9,26 +10,26 @@ import java.io.InputStream
 import java.io.OutputStream
 
 
-object AssetsManager {
-    private const val EXTENSION = ".apk"
-    fun copyToExternal(context: Context) {
+class AssetsManager(
+    private val context: Context
+) {
+    fun copyToExternal() {
         try {
-            copy(context)
+            copy()
         } catch (e: Exception) {
             Timber.e(e.message)
         }
     }
 
-
-    fun get(context: Context, filename: String? = ""): String {
-        return list(context, filename).first()
+    fun get(filename: String? = ""): String {
+        return list(filename).first()
     }
 
-    fun list(context: Context, filename: String? = ""): Array<String> {
+    fun list(filename: String? = ""): Array<String> {
         val files: Array<String>?
         try {
             files = if (filename?.isEmpty() == true) {
-                context.assets.list("Files")?.filter { it.endsWith(EXTENSION) }?.toTypedArray()
+                context.assets.list("Files")?.filter { it.endsWith(APP_EXTENSION) }?.toTypedArray()
             } else {
                 context.assets.list("Files")?.filter { it.equals(filename) }?.toTypedArray()
             }
@@ -43,11 +44,11 @@ object AssetsManager {
         }
     }
 
-    private fun copy(context: Context) {
+    fun copy() {
 
-        for (filename in list(context)) {
+        for (filename in list()) {
 
-            open(context, filename) { input ->
+            open(filename) { input ->
                 Timber.d("Got $filename from assets")
                 FileOutputStream(
                     "${Environment.getExternalStorageDirectory()}/$filename"
@@ -60,7 +61,6 @@ object AssetsManager {
     }
 
     fun open(
-        context: Context,
         filename: String,
         action: (InputStream) -> Unit
     ) {
