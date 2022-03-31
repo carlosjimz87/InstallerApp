@@ -5,6 +5,7 @@ import android.Manifest
 object Constants {
 
     const val APP_EXTENSION = ".apk"
+    const val PERMISSION_REQUEST_STORAGE = 0
     val APPS = mapOf(
         "Files/other_app.apk" to "com.onthespot.androidplayer",
         "Files/signed_app.apk" to "com.onthespot.system"
