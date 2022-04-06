@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSnackbarForRationale() {
         mainLayout.showSnackbar(
-            getString(R.string.storage_access_required),
+            getString(R.string.permission_required),
             Snackbar.LENGTH_INDEFINITE, getString(R.string.ok)
         ) {
 
